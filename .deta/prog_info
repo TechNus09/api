@@ -1,0 +1,1 @@
+{"id":"e5fac481-aaaf-4a59-b24e-c567968194b0","space":24066,"runtime":"python3.9","name":"coa-helper","path":"06h0af","project":"a0d3vcon","account":"144798365827","region":"eu-central-1","deps":["fastapi","aiohttp","asyncio"],"envs":null,"public":true,"log_level":"debug","cron":""}
