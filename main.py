@@ -1,4 +1,3 @@
-from multiprocessing.spawn import import_main_path
 import aiohttp
 from fastapi import FastAPI
 from helper import *
@@ -19,7 +18,7 @@ async def root():
         data = await response.json()
     return data
 @app.get("/login")
-def root():
+def login():
     return {"username": "password"}
 
 @app.get("/users")
