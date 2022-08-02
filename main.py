@@ -30,7 +30,7 @@ def get_tiers():
     xp_gains = retrieve("4444")
     xp_gains = {k: v for k, v in sorted(xp_gains.items(), key=lambda item: item[1],reverse=True)}
     for player in xp_gains :
-        current_tier = ""
+        current_tier = "none"
         for tier in tiers:
             if "69420" in str(xp_gains[player]):
                 current_tier="11"
@@ -40,7 +40,7 @@ def get_tiers():
                 pass
             elif xp_gains[player]<tiers[tier]:
                 break
-        if int(current_tier):
+        if current_tier != "none":
             rank = player + " --- " + "{:,}". format(xp_gains[player])
             tiers_list[int(current_tier)].append(rank)
         total_xp += xp_gains[player]
