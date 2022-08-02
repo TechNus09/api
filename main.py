@@ -40,9 +40,10 @@ def get_tiers():
                 pass
             elif xp_gains[player]<tiers[tier]:
                 break
+        if int(current_tier):
+            rank = player + " --- " + "{:,}". format(xp_gains[player])
+            tiers_list[int(current_tier)].append(rank)
         total_xp += xp_gains[player]
-        rank = player + " --- " + "{:,}". format(xp_gains[player])
-        tiers_list[int(current_tier)].append(rank)
     return tiers_list, total_xp
 
 @app.get("/")
