@@ -65,9 +65,8 @@ async def show_tiers():
     total_xp_gained = f"<br><strong>Total XP gained : {total_xp}</strong></b>" 
     code = code + total_xp_gained
     tiers_list.reverse()
-    if len(tiers_list[0]) > 0:
-        start = 0
-    elif len(tiers_list) == 0:
+    start = 0
+    if len(tiers_list[0]) == 0:
         start = 1
     for i in range(start,11):
         f_t = format_tier(i,tiers_list[i],current_rank)
