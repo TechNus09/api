@@ -66,7 +66,7 @@ async def search(username:str):
 async def show_tiers():
     results = get_tiers()
     total_xp = results[1]
-    tiers_list = total_xp[0]
+    tiers_list = results[0]
     current_rank = 0
     ranking = f"Total XP gained : {total_xp}" + "\n \n \n"
     if len(tiers_list[10])>0:
