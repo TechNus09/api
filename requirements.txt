@@ -3,3 +3,4 @@ aiohttp
 asyncio
 gunicorn
 uvicorn
+psycopg2
