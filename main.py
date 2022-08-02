@@ -65,14 +65,14 @@ async def search(username:str):
 @app.get("/event")
 async def show_tiers():
     results = get_tiers()
-    total_xp = results[1]
+    total_xp = "{:,}".format(results[1])
     tiers_list = results[0]
     current_rank = 0
     ranking = f"Total XP gained : {total_xp}" + "\n \n \n"
-    if len(tiers_list[10])>0:
-        ranking = ranking + "Special Tier : "
-        for player in tiers_list[10]:
-            ranking = ranking + "\n" + player
+    #if len(tiers_list[10])>0:
+        #ranking = ranking + "Special Tier : "
+        #for player in tiers_list[10]:
+            #ranking = ranking + "\n" + player
     for i in range(9,-1,-1):
         ranking = ranking + f"\n\nTier {i+1} : "
         for player in tiers_list[i]:
