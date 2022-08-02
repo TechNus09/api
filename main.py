@@ -1,5 +1,6 @@
 import aiohttp
 from fastapi import FastAPI
+from fastapi.responses import HTMLResponse
 from helper import *
 from db_helper import *
 
@@ -10,8 +11,6 @@ tiers = { "1": 8000000,"2": 16000000,"3": 32000000,"4": 40000000,
         "5": 56000000,"6": 64000000,"7": 80000000,"8": 112000000,
         "9":180000000,"10":200000000}
 
-async def rankings_search(name):
-    return await rank_search_helper([mode for mode in ranking_modes.keys()], name)
 
 def get_tiers():
     tier1 = []
@@ -42,7 +41,7 @@ def get_tiers():
                 break
         if current_tier != "none":
             rank = player + " --- " + "{:,}". format(xp_gains[player])
-            tiers_list[int(current_tier)].append(rank)
+            tiers_list[int(current_tier)-1].append(rank)
         total_xp += xp_gains[player]
     return tiers_list, total_xp
 
@@ -55,28 +54,26 @@ async def root():
 @app.get("/login")
 def login():
     return {"username": "password"}
-
-@app.get("/users")
-async def search(username:str):
-    results = await rank_search_helper([mode for mode in ranking_modes.keys()], username.replace("-"," "))
-    return results
-
     
-@app.get("/event")
+@app.get("/event",response_class=HTMLResponse)
 async def show_tiers():
     results = get_tiers()
     total_xp = "{:,}".format(results[1])
     tiers_list = results[0]
+    code = ""
     current_rank = 0
-    ranking = f"Total XP gained : {total_xp}" + "\n \n \n"
-    #if len(tiers_list[10])>0:
-        #ranking = ranking + "Special Tier : "
-        #for player in tiers_list[10]:
-            #ranking = ranking + "\n" + player
-    for i in range(9,-1,-1):
-        ranking = ranking + f"\n\nTier {i+1} : "
-        for player in tiers_list[i]:
-            current_rank += 1
-            ranking = ranking + f"\n[{current_rank}] {player}"
+    total_xp_gained = f"<br><strong>Total XP gained : {total_xp}</strong></b>" 
+    code = code + total_xp_gained
+    tiers_list.reverse()
+    if len(tiers_list[0]) > 0:
+        start = 0
+    elif len(tiers_list) == 0:
+        start = 1
+    for i in range(start,11):
+        f_t = format_tier(i,tiers_list[i],current_rank)
+        current_rank = f_t[1]
+        code = code + f_t[0]
+    code = block(block("Event Leaderboard","title"),"head") + code
+    code = block(block(code,"body"),"html")
+    return f"""{code}"""
     
-    return ranking

@@ -46,105 +46,24 @@ ranking_modes = {
             'tailoring': 'highscores-tailoring'
         }
 url = 'https://www.curseofaros.com'
-total_connection_retries = 5
-
-async def get_page_info( link, tries=0):
-    if tries > total_connection_retries:
-        return None
-
-    try:
-        async with aiohttp.ClientSession() as session:
-            response = await session.get(link)
-            data = await response.json(content_type=None)
-    except ClientOSError:
-        return await get_page_info(link, tries + 1)
-    except ValueError:
-        return None
-    else:
-        return data
-
-async def set_rank_tasks(mode, name):
-        max_page = 80000
-
-        split = math.ceil(max_page / 4)
-        tasks = []
-        i = 0
-        while i < max_page:
-            temp = i + split
-            mid = (temp + i) // 2
-            tasks.append(get_rank_info(mode, name, i, max_page if temp > max_page else mid))
-            tasks.append(get_rank_info(mode, name, -max_page if temp > max_page else -temp, -mid))
-            i = temp
-        done = None
-        if tasks:
-            done, pending = await asyncio.wait(tasks, timeout=600, return_when=asyncio.FIRST_COMPLETED)
-            [p.cancel() for p in pending]
-        if done:
-            result = done.pop().result()
-            #result = (mode,       (       (rank,xp,name),       color)       )
-            #mode=result[0]
-            #rank=result[1][0][0]
-            #xp=result[1][0][1]
-            #name=result[1][0][2]
-            #color=result[1][1]
-            #
-            print(f'Rank info found for {name}, {mode}: {result}')
-            return result
-        else:
-            print(f'Rank not info found for {name}, {mode}')
-            return (mode, (None, None))
-
-async def get_rank_info(mode, name, start_page=0, end_page=sys.maxsize):
-        info = None
-        color = None
-        resource = ranking_modes[mode]
-        found = False
-        json_data = await get_page_info(f'{url}/{resource}.json?p={abs(start_page)}')
-        page = start_page
-        while json_data and not found and page <= end_page:
-            j = 0
-            while j < len(json_data) and not found:
-                player = json_data[j]
-                if player['name'].lower() == name:
-                    found = True
-                    rank = abs(page) * 20 + j + 1
-                    info = (rank, player['xp'], player['name'])
-                    color = player['name_color'] if player['name_color'] else '99aab5'
-                else:
-                    j += 1
-            page += 1
-            json_data = await get_page_info(f'{url}/{resource}.json?p={abs(page)}')
-
-        if not found:
-            await asyncio.sleep(600)
-        return (mode, (info, color))
-
-def get_level(xp):
-    level = 0
-    while xp >= level_table[level]:
-        level += 1
-    return level
 
 
 
-
-async def rank_search_helper( modes, name):
-    if len(name) < 3 or len(name) > 14:
-        print('Invalid name!')
-    name = name.lower()
-    rank_mode_sub = [mode for mode in ranking_modes.keys() if mode in modes]
-    info = {}
-    color = None
-    found_name = None
-    futures = [set_rank_tasks(mode, name) for mode in rank_mode_sub]
-    done, _ = await asyncio.wait(futures)
-    for task in done:
-        player_ranks = task.result()
-        sub_info, temp_color = player_ranks[1]
-        if not color and temp_color:
-            color = temp_color
-        if not found_name and sub_info:
-            found_name = sub_info[2]
-        info[player_ranks[0]] = sub_info
-    return info
-
+def block(text,tag):
+    text = f"<{tag}>{text}</{tag}>"
+    return text
+    
+def get_rank(player,rank):
+    op = f"[{rank}] {player}"
+    return op
+    
+def format_tier(tier,players_list,last_rank):
+    last_rank=last_rank
+    tier = "Special" if tier == 0 else (11-tier)
+    tier_txt = f"Tier {tier} :"
+    code = block(block(tier_txt,"b"),"br")
+    for player in players_list:
+        rank = players_list.index(player) + 1
+        code = code + ( get_rank(player,rank) if rank%2==1 else block(get_rank(player,rank),"br") )
+    code = block(code,"p")
+    return code, last_rank
